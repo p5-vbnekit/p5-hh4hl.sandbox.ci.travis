@@ -1,0 +1,3 @@
+[submodule "modules/funchook/src"]
+	path = modules/funchook/src
+	url = ../forks.funchook.git
