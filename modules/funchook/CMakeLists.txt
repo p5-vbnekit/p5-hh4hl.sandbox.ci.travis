@@ -1,0 +1,20 @@
+add_custom_target("modules.funchook-all" ALL)
+add_dependencies("modules-all" "modules.funchook-all")
+
+function("add_platform_target" platform)
+    set("platform_file" "${CMAKE_CURRENT_SOURCE_DIR}/platforms/${platform}.cmake")
+    if(EXISTS "${platform_file}")
+        include("${platform_file}")
+        add_target()
+        add_dependencies("modules.funchook-all" "modules.funchook-${platform}")
+        add_dependencies("modules-all-${platform}" "modules.funchook-${platform}")
+    endif(EXISTS "${platform_file}")
+endfunction("add_platform_target" platform)
+
+function("add_platform_targets")
+    foreach("platform" ${p5-hh4hl.sandbox.ci.travis/platforms})
+        add_platform_target("${platform}")
+    endforeach("platform" ${p5-hh4hl.sandbox.ci.travis/platforms})
+endfunction("add_platform_targets")
+
+add_platform_targets()

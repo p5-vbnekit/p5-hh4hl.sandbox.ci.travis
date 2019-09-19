@@ -1,0 +1,6 @@
+function("add_target")
+    set("architecture" "x86_64")
+    set("docker_image" "debian:stable")
+    set("platform" "debian_stable-${architecture}")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/debian-add_target.cmake")
+endfunction("add_target")

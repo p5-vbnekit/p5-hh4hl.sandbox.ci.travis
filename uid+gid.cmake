@@ -1,0 +1,18 @@
+unset("p5-hh4hl.sandbox.ci.travis/uid" CACHE)
+unset("p5-hh4hl.sandbox.ci.travis/gid" CACHE)
+set("p5-hh4hl.sandbox.ci.travis/uid" "")
+set("p5-hh4hl.sandbox.ci.travis/gid" "")
+mark_as_advanced("p5-hh4hl.sandbox.ci.travis/uid")
+mark_as_advanced("p5-hh4hl.sandbox.ci.travis/gid")
+
+function(request_id arg)
+    exec_program("id" ARGS "-${arg}" OUTPUT_VARIABLE "output" RETURN_VALUE "result")
+    if(("${result}" EQUAL "0") AND ("${output}" MATCHES "[0-9]+"))
+        set("p5-hh4hl.sandbox.ci.travis/${arg}id" "${output}" PARENT_SCOPE)
+    else(("${result}" EQUAL "0") AND ("${output}" MATCHES "[0-9]+"))
+        message(FATAL_ERROR "failed to call id -${arg}")
+    endif(("${result}" EQUAL "0") AND ("${output}" MATCHES "[0-9]+"))
+endfunction(request_id)
+
+request_id("u")
+request_id("g")
