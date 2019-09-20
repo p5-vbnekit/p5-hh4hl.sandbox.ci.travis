@@ -27,7 +27,7 @@ jobs:
     - stage: deploy
       os: linux
       language: minimal
-      script: (cd build/prefix && tar -c .) | xz -9 > build/prefix.tar.xz
+      script: ls build/prefix; (cd build/prefix && tar -c .) | xz -9 > build/prefix.tar.xz
       before_cache: rm -rf "${TRAVIS_BUILD_DIR}/build/prefix"
       deploy:
         provider: releases
