@@ -13,7 +13,7 @@ jobs:
   include:
     - stage: prepare
       os: linux
-      language: minimal
+      language: generic
       script: rm -rf "${TRAVIS_BUILD_DIR}/build/prefix"; mkdir -p "${TRAVIS_BUILD_DIR}/build/prefix"
     - stage: windows
       os: windows
@@ -23,10 +23,11 @@ jobs:
       os: linux
       dist: bionic
       language: cpp
-      script: cd build && cmake -D"p5-hh4hl.sandbox.ci.travis/platforms:STRING=debian_stable-x86;debian_stable-x86_64;debian_testing-x86;debian_testing-x86_64" .. && cmake --build . --target modules-all -j -- -Orecurse
+      script: ls build/prefix
+      # script: cd build && cmake -D"p5-hh4hl.sandbox.ci.travis/platforms:STRING=debian_stable-x86;debian_stable-x86_64;debian_testing-x86;debian_testing-x86_64" .. && cmake --build . --target modules-all -j -- -Orecurse
     - stage: deploy
       os: linux
-      language: minimal
+      language: generic
       script: ls build/prefix; (cd build/prefix && tar -c .) | xz -9 > build/prefix.tar.xz
       before_cache: rm -rf "${TRAVIS_BUILD_DIR}/build/prefix"
       deploy:
