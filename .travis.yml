@@ -13,12 +13,12 @@ jobs:
   include:
     - stage: prepare
       os: linux
-      language: generic
-      script: rm -rf "${TRAVIS_BUILD_DIR}/build/prefix"; mkdir -p "${TRAVIS_BUILD_DIR}/build/prefix"
+      language: minimal
+      script: rm -rf "${TRAVIS_BUILD_DIR}/build"; mkdir -p "${TRAVIS_BUILD_DIR}/build/prefix"
     - stage: windows
       os: windows
       language: cpp
-      script: cd build && cmake -D"p5-hh4hl.sandbox.ci.travis/platforms:STRING=mingw-x86;mingw-x86_64" .. && cmake --build . --target modules-all -j
+      script: ls build/prefix; cd build && cmake -D"p5-hh4hl.sandbox.ci.travis/platforms:STRING=mingw-x86;mingw-x86_64" .. && cmake --build . --target modules-all -j
     - stage: linux
       os: linux
       dist: bionic
@@ -27,9 +27,8 @@ jobs:
       # script: cd build && cmake -D"p5-hh4hl.sandbox.ci.travis/platforms:STRING=debian_stable-x86;debian_stable-x86_64;debian_testing-x86;debian_testing-x86_64" .. && cmake --build . --target modules-all -j -- -Orecurse
     - stage: deploy
       os: linux
-      language: generic
+      language: minimal
       script: ls build/prefix; (cd build/prefix && tar -c .) | xz -9 > build/prefix.tar.xz
-      before_cache: rm -rf "${TRAVIS_BUILD_DIR}/build/prefix"
       deploy:
         provider: releases
         api_key:
