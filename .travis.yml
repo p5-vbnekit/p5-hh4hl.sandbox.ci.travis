@@ -1,16 +1,40 @@
-language: cpp
-compiler: gcc
-os: linux
-dist: bionic
+cache:
+  directories:
+  - "${TRAVIS_BUILD_DIR}/build/prefix"
 services: docker
-script: "(mkdir build && cd build && cmake .. && make -j -Orecurse)"
 
-deploy:
-  provider: releases
-  api_key:
-    secure: jnOqjrzpfaj4U8TUfqGSR8ZSrKC8UzYlTKtKtEiULOohyFOuwcnd2acJbV08xaBLVXRxI1ZFTJf686KbDhsHX48AknrHpZWcIcxshGkMzClpfutvhXlvxXP6fps+NOBtbgqe/l83xYuPkMUACo0edPAi2VURh74IunB799RwY81243aFq8agIP0ZjkY4yVjWVMXew4ERoTOFUep5AAwCOe0j0AJn9d3d6JWgDLtMfTsclAmnwBIa6zO2k7/b311S4c1BqZKEYDuREUi9XaCeMpc+yxuXCIV3aecvR5W/gPqPYZ4wZEfEhgih71iJ+s81ZxtF7A6KhQP+hHi95pI3C5alEc9WCDSX9ZLbd2ZYqeJ9VbS/YH8zOkNt5HakbRakylaaMCWqy1v9gCagJNlBoHUm09Wg4qGRLgKLIhcJG4aSohV9bZVt/r16dcSFrFO8/J8T5QtN/kCbBAelQMmXZgG9e+2bTWWzUVnyHFEccde4x4V9pdnbXOHkOHxxhWXWatjJiPfkGK+GZa4efzeKgxRl9u2LVYhHjku48g15zPgyWjdgZ88oDUKCtnNaaWLbqzhUJCumj4cHIat9KqJxju91F3Hg7dHz4wrUsX2ge5h2GHmGFVKAZK9vLNJ6kIPvO9ScOmEXRGpWIV6p1PxPwaHG7LjmgDE/Zo5mgf3CHM8=
-  skip_cleanup: true
-  file: "build/prefix.tar.xz"
-  draft: true
-  on:
-    branch: temporary
+stages:
+  - name: prepare
+  - name: windows
+  - name: linux
+  - name: deploy
+
+jobs:
+  include:
+    - stage: prepare
+      os: linux
+      language: minimal
+      script: rm -rf "${TRAVIS_BUILD_DIR}/build/prefix"; mkdir -p "${TRAVIS_BUILD_DIR}/build/prefix"
+    - stage: windows
+      os: windows
+      language: cpp
+      script: cd build && cmake -D"p5-hh4hl.sandbox.ci.travis/platforms:STRING=mingw-x86;mingw-x86_64" .. && cmake --build . --target modules-all -j
+    - stage: linux
+      os: linux
+      dist: bionic
+      language: cpp
+      script: cd build && cmake -D"p5-hh4hl.sandbox.ci.travis/platforms:STRING=debian_stable-x86;debian_stable-x86_64;debian_testing-x86;debian_testing-x86_64" .. && cmake --build . --target modules-all -j -- -Orecurse
+    - stage: deploy
+      os: linux
+      language: minimal
+      script: (cd build/prefix && tar -c .) | xz -9 > build/prefix.tar.xz
+      before_cache: rm -rf "${TRAVIS_BUILD_DIR}/build/prefix"
+      deploy:
+        provider: releases
+        api_key:
+          secure: jnOqjrzpfaj4U8TUfqGSR8ZSrKC8UzYlTKtKtEiULOohyFOuwcnd2acJbV08xaBLVXRxI1ZFTJf686KbDhsHX48AknrHpZWcIcxshGkMzClpfutvhXlvxXP6fps+NOBtbgqe/l83xYuPkMUACo0edPAi2VURh74IunB799RwY81243aFq8agIP0ZjkY4yVjWVMXew4ERoTOFUep5AAwCOe0j0AJn9d3d6JWgDLtMfTsclAmnwBIa6zO2k7/b311S4c1BqZKEYDuREUi9XaCeMpc+yxuXCIV3aecvR5W/gPqPYZ4wZEfEhgih71iJ+s81ZxtF7A6KhQP+hHi95pI3C5alEc9WCDSX9ZLbd2ZYqeJ9VbS/YH8zOkNt5HakbRakylaaMCWqy1v9gCagJNlBoHUm09Wg4qGRLgKLIhcJG4aSohV9bZVt/r16dcSFrFO8/J8T5QtN/kCbBAelQMmXZgG9e+2bTWWzUVnyHFEccde4x4V9pdnbXOHkOHxxhWXWatjJiPfkGK+GZa4efzeKgxRl9u2LVYhHjku48g15zPgyWjdgZ88oDUKCtnNaaWLbqzhUJCumj4cHIat9KqJxju91F3Hg7dHz4wrUsX2ge5h2GHmGFVKAZK9vLNJ6kIPvO9ScOmEXRGpWIV6p1PxPwaHG7LjmgDE/Zo5mgf3CHM8=
+        skip_cleanup: true
+        file: "build/prefix.tar.xz"
+        draft: true
+        on:
+          branch: temporary+windows
